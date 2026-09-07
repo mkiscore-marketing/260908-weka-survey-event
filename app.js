@@ -1,39 +1,6 @@
 (function () {
   "use strict";
 
-  var QUESTIONS = [
-    {
-      q: "엠키스코어는 HPE 파트너사입니다. 다음 중 엠키스코어의 HPE 파트너 등급에 해당하는 것은?",
-      options: ["플래티넘", "골드", "실버"],
-      correct: 0,
-      explain: "엠키스코어는 HPE 파트너 프로그램 내 <strong>최상위 등급인 플래티넘</strong> 파트너입니다."
-    },
-    {
-      q: "대규모 GPU 클러스터 구축 시 고려해야 하는 사항은?",
-      options: ["전력", "냉각", "모니터링 솔루션", "모두 다"],
-      correct: 3,
-      explain: "전력, 냉각, 모니터링 솔루션 세 가지가 함께 관리돼야 안정적으로 운영됩니다. 엠키스코어의 M-OWL은 AI/HPC 클러스터를 한 화면에서 모니터링하는 자체 솔루션으로, GS 1등급 인증도 받았습니다."
-    },
-    {
-      q: "엠키스코어는 NIPA 국가 AI 컴퓨팅센터 1차 구축 성과를 보유한 검증된 AI Factory Partner다.",
-      options: ["O", "X"],
-      correct: 0,
-      explain: "위 프로젝트는 엠키스코어가 직접 설계, 구축, 최적화 및 안정화한 사례입니다. 국가 AI 컴퓨팅 센터 1차 사업은 현 시점에서 국내 최대 규모의 수랭 GPU 클러스터입니다."
-    },
-    {
-      q: "엠키스코어가 구축한 국내 최대 규모 B200 GPU 기반 AI 데이터센터의 총 GPU 수는?",
-      options: ["4,080", "5,120", "6,400", "7,656"],
-      correct: 3,
-      explain: "NIPA 국가 AI 컴퓨팅 센터(1차)는 국내 최대 규모의 B200 GPU 기반 AI 인프라로, 총 7,656장의 GPU를 운영합니다. 이 중 510개 노드로 구성된 단일 클러스터는 4,080장 규모로, 이 역시 국내 최대 규모입니다."
-    },
-    {
-      q: "세계 슈퍼컴퓨터 순위 TOP500에 이름을 올린 국내 AI 슈퍼컴퓨터 중에는 엠키스코어가 구축한 시스템도 있다.",
-      options: ["O", "X"],
-      correct: 0,
-      explain: "NIPA 국가 AI 컴퓨팅센터의 CL-1은 시스템 성능 효율 87.8%를 선보이며, 2026년 6월 TOP500에서 20위에 등재되었습니다."
-    }
-  ];
-
   var CONSENT_TEXT_REQUIRED =
     "<strong>개인정보 공유 동의</strong>" +
     "<p>엠키스코어-WEKA가 귀하의 개인정보를 수집, 이용하는 목적은 다음과 같습니다. 제품과 서비스에 대해 귀하와의 연락, 고객 서비스 증진, 제품 및 서비스에 대한 정보 제공 및 판매, 새로운 서비스와 혜택에 대한 업데이트, 개별 프로모션 제안, 제품 및 서비스에 대한 시장 조사.</p>" +
@@ -108,8 +75,6 @@
 
   var state = {
     screen: "intro",
-    qIndex: 0,
-    answered: [false, false, false, false, false],
     surveyStep: 0,
     survey: {}
   };
@@ -174,7 +139,6 @@
   function render() {
     app.innerHTML = "";
     if (state.screen === "intro") return renderIntro();
-    if (state.screen === "quiz") return renderQuiz();
     if (state.screen === "survey") return renderSurvey();
     if (state.screen === "submitting") return renderSubmitting();
     if (state.screen === "thanks") return renderThanks();
@@ -186,89 +150,19 @@
       '<div class="shell">' +
         topbar("", 0, 0) +
         '<div class="content"><div class="card">' +
-          '<p class="eyebrow">부스 퀴즈 이벤트</p>' +
-          "<h1>국내 최대 규모 AI Factory를 만든 엠키스코어를 퀴즈로 만나보세요</h1>" +
-          '<p class="lede">간단한 5개의 퀴즈를 풀고 설문에 참여하시면 100% 기념품을 받으실 수 있습니다.</p>' +
-          '<button class="btn btn-primary" id="btn-start">퀴즈 풀고 기념품 받아가세요</button>' +
+          '<p class="eyebrow">부스 설문 이벤트</p>' +
+          "<h1>국내 최대 규모 AI Factory를 만든 엠키스코어를 만나보세요</h1>" +
+          '<p class="lede">간단한 설문에 참여하시면 100% 기념품을 받으실 수 있습니다.</p>' +
+          '<button class="btn btn-primary" id="btn-start">설문 참여하고 기념품 받아가세요</button>' +
         "</div></div>" +
       "</div>"
     ));
     document.getElementById("btn-start").addEventListener("click", function () {
-      state.screen = "quiz";
-      state.qIndex = 0;
+      state.screen = "survey";
+      state.surveyStep = 0;
       saveDraft();
       render();
     });
-  }
-
-  function renderQuiz() {
-    var idx = state.qIndex;
-    var item = QUESTIONS[idx];
-    var picked = state.answered[idx];
-    var isAnswered = picked !== false && picked !== undefined && picked !== null;
-
-    var optsHtml = item.options.map(function (opt, i) {
-      return '<button class="opt" data-i="' + i + '"><span class="opt-text">' + escapeHtml(opt) + '</span><span class="opt-tag"></span></button>';
-    }).join("");
-
-    app.appendChild(el(
-      '<div class="shell">' +
-        topbar("문항", idx + 1, QUESTIONS.length) +
-        '<div class="content"><div class="card">' +
-          "<h2>" + escapeHtml(item.q) + "</h2>" +
-          '<div class="opt-list" id="opt-list">' + optsHtml + "</div>" +
-          '<div id="explain-slot"></div>' +
-        "</div></div>" +
-      "</div>"
-    ));
-
-    var optButtons = Array.prototype.slice.call(document.querySelectorAll("#opt-list .opt"));
-
-    if (isAnswered) {
-      showAnswered(picked);
-    }
-
-    optButtons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        if (isAnswered) return;
-        var i = Number(btn.getAttribute("data-i"));
-        state.answered[idx] = i;
-        saveDraft();
-        showAnswered(i);
-      });
-    });
-
-    function showAnswered(pickedIndex) {
-      optButtons.forEach(function (btn, i) {
-        var tag = btn.querySelector(".opt-tag");
-        if (i === item.correct) {
-          btn.classList.add("correct");
-          tag.textContent = "정답!";
-        } else if (i === pickedIndex) {
-          btn.classList.add("wrong");
-          tag.textContent = "오답!";
-        } else {
-          btn.classList.add("dim");
-        }
-      });
-      var slot = document.getElementById("explain-slot");
-      var isLast = idx === QUESTIONS.length - 1;
-      slot.innerHTML =
-        '<div class="explain"><strong>정답 해설</strong>' + item.explain + "</div>" +
-        '<div class="btn-row"><button class="btn btn-primary" id="btn-next">' +
-        (isLast ? "설문 시작하기" : "다음 문항") +
-        "</button></div>";
-      document.getElementById("btn-next").addEventListener("click", function () {
-        if (isLast) {
-          state.screen = "survey";
-          state.surveyStep = 0;
-        } else {
-          state.qIndex = idx + 1;
-        }
-        saveDraft();
-        render();
-      });
-    }
   }
 
   function fieldHtml(f, value) {
@@ -411,33 +305,11 @@
     return ok;
   }
 
-  function buildQuizAnswers() {
-    return QUESTIONS.map(function (item, i) {
-      var picked = state.answered[i];
-      var hasPick = picked !== false && picked !== undefined && picked !== null;
-      if (!hasPick) return "";
-      var isCorrect = picked === item.correct;
-      return item.options[picked] + " (" + (isCorrect ? "정답" : "오답") + ")";
-    });
-  }
-
-  function buildQuizScore() {
-    var correct = QUESTIONS.filter(function (item, i) { return state.answered[i] === item.correct; }).length;
-    return correct + "/" + QUESTIONS.length;
-  }
-
   function buildRecord() {
     var s = state.survey;
-    var quizAnswers = buildQuizAnswers();
     return {
       id: uid(),
       submittedAt: formatKst(new Date()),
-      quiz1: quizAnswers[0] || "",
-      quiz2: quizAnswers[1] || "",
-      quiz3: quizAnswers[2] || "",
-      quiz4: quizAnswers[3] || "",
-      quiz5: quizAnswers[4] || "",
-      quizScore: buildQuizScore(),
       company: s.company || "",
       name: s.name || "",
       email: s.email || "",
