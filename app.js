@@ -34,7 +34,7 @@
         { key: "interestAreas", label: "관심 분야 (복수 응답 가능)", type: "checkbox", required: true,
           options: ["연구개발", "데이터 분석 및 활용", "Physical AI", "AI Factory", "생성형 AI", "HPC 및 AI Simulation", "AI 학습 및 추론", "기타"] },
         { key: "interestProducts", label: "관심 제품 (복수 응답 가능)", type: "checkbox", required: true,
-          options: ["8GPU Server (B200, B300)", "Rack 서버 (GB300, Vera Rubin...)", "IB Switch", "RTX Pro 6000 GPU Server", "GDS 스토리지", "WEKA 라이선스", "해당 없음"] }
+          options: ["WEKApod 3", "WEKA NeuralMesh™", "기타 (작성 가능)"], otherOption: "기타 (작성 가능)" }
       ]
     },
     {
@@ -192,9 +192,16 @@
         var checked = selected.indexOf(opt) > -1 ? " checked" : "";
         return '<label class="chip"><input type="checkbox" data-group="' + f.key + '" value="' + escapeHtml(opt) + '"' + checked + "><span>" + escapeHtml(opt) + "</span></label>";
       }).join("");
+      var otherHtml = "";
+      if (f.otherOption) {
+        var otherOn = selected.indexOf(f.otherOption) > -1;
+        var otherText = state.survey[f.key + "Other"] || "";
+        otherHtml = '<input type="text" class="other-input" id="other-' + f.key + '" placeholder="직접 입력해 주세요" value="' + escapeHtml(otherText) + '"' + (otherOn ? "" : " hidden") + ">";
+      }
       return '<div class="field" data-key="' + f.key + '">' +
         "<label>" + escapeHtml(f.label) + (f.required ? '<span class="req">*</span>' : "") + "</label>" +
         '<div class="chip-group">' + boxes + "</div>" +
+        otherHtml +
         '<div class="err">최소 하나를 선택해 주세요.</div>' +
       "</div>";
     }
@@ -255,8 +262,23 @@
               cur = cur.filter(function (v) { return v !== b.value; });
             }
             state.survey[f.key] = cur;
+            if (f.otherOption && b.value === f.otherOption) {
+              var otherInput = document.getElementById("other-" + f.key);
+              if (otherInput) {
+                otherInput.hidden = !b.checked;
+                if (b.checked) otherInput.focus();
+              }
+            }
           });
         });
+        if (f.otherOption) {
+          var otherInput2 = document.getElementById("other-" + f.key);
+          if (otherInput2) {
+            otherInput2.addEventListener("input", function () {
+              state.survey[f.key + "Other"] = otherInput2.value;
+            });
+          }
+        }
       } else if (f.type === "consent") {
         var consentBox = document.querySelector('input[data-consent="' + f.key + '"]');
         consentBox.addEventListener("change", function () {
@@ -321,7 +343,9 @@
       companySize: s.companySize || "",
       itBudget: s.itBudget || "",
       interestAreas: s.interestAreas || [],
-      interestProducts: s.interestProducts || [],
+      interestProducts: (s.interestProducts || []).map(function (v) {
+        return v === "기타 (작성 가능)" && s.interestProductsOther ? "기타: " + s.interestProductsOther : v;
+      }),
       adoptionIntent: s.adoptionIntent || "",
       adoptionTimeline: s.adoptionTimeline || "",
       consult: s.consult || "",

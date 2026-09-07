@@ -244,7 +244,8 @@ p.lede {
 
 .field input[type="text"],
 .field input[type="email"],
-.field input[type="tel"] {
+.field input[type="tel"],
+.other-input {
   width: 100%;
   padding: 12px 13px;
   border-radius: 10px;
@@ -253,6 +254,10 @@ p.lede {
   color: var(--text);
   font-family: inherit;
   font-size: 15px;
+}
+
+.other-input {
+  margin-top: 10px;
 }
 
 .field input:focus {
