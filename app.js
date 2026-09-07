@@ -53,7 +53,7 @@
           options: ["도입 의사 있음", "도입 의사 없음", "도입 검토중 (구매부서 협의 전)", "미확정 (정보확인 목적)", "미확정 (사전조사 목적)"] },
         { key: "adoptionTimeline", label: "도입 시점", type: "radio", required: true,
           options: ["1~2개월 이내 (긴급도입)", "3개월 이내", "6개월 이내", "1년 이내", "1년 이후", "미정", "계획없음"] },
-        { key: "consult", label: "엠키스코어 영업팀의 상담을 받아보시겠어요?", type: "radio", required: true,
+        { key: "consult", label: "추후 WEKA 도입과 관련하여 상담을 희망하십니까?", type: "radio", required: true,
           options: ["예", "아니오"] }
       ]
     },
@@ -150,10 +150,10 @@
       '<div class="shell">' +
         topbar("", 0, 0) +
         '<div class="content"><div class="card">' +
-          '<p class="eyebrow">부스 설문 이벤트</p>' +
-          "<h1>국내 최대 규모 AI Factory를 만든 엠키스코어를 만나보세요</h1>" +
-          '<p class="lede">간단한 설문에 참여하시면 100% 기념품을 받으실 수 있습니다.</p>' +
-          '<button class="btn btn-primary" id="btn-start">설문 참여하고 기념품 받아가세요</button>' +
+          '<p class="eyebrow">MKISCORE X WEKA</p>' +
+          "<h1>엠키스코어 링크드인 팔로우 &amp; 설문 참여 후 100% 선물 증정 룰렛 이벤트 참여하세요 🎁</h1>" +
+          '<p class="lede">* 본 이벤트는 선착순 조기 종료될 수 있습니다.</p>' +
+          '<button class="btn btn-primary" id="btn-start">설문 시작하기</button>' +
         "</div></div>" +
       "</div>"
     ));
@@ -392,7 +392,7 @@
           '<div class="thanks-icon">' + checkSvg + "</div>" +
           "<h1>설문 이벤트에 참여해주셔서 감사합니다</h1>" +
           '<p class="lede">엠키스코어가 구축한 AI 인프라에 관심 가져주셔서 감사합니다.</p>' +
-          '<div class="staff-box"><p class="label">엠키스코어 스태프 확인용</p><p>이 화면을 스태프에게 보여주시면 기념품을 드립니다.</p></div>' +
+          '<div class="staff-box"><p class="label">엠키스코어 스태프 확인용</p><p>이 화면은 부스 스태프에게 보여주면 룰렛 이벤트에 참여할 수 있습니다.</p></div>' +
           note +
         "</div></div>" +
       "</div>"
