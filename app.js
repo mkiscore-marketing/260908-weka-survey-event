@@ -34,6 +34,18 @@
     }
   ];
 
+  var CONSENT_TEXT_REQUIRED =
+    "<strong>개인정보 공유 동의</strong>" +
+    "<p>엠키스코어-WEKA가 귀하의 개인정보를 수집, 이용하는 목적은 다음과 같습니다. 제품과 서비스에 대해 귀하와의 연락, 고객 서비스 증진, 제품 및 서비스에 대한 정보 제공 및 판매, 새로운 서비스와 혜택에 대한 업데이트, 개별 프로모션 제안, 제품 및 서비스에 대한 시장 조사.</p>" +
+    "<p><strong>1. 수집하려는 개인정보의 항목</strong><br>이름, 이메일, 회사명, 회사전화번호, 휴대전화번호, 담당업무, 부서, 직급</p>" +
+    "<p><strong>2. 개인정보의 보유 및 이용 기간</strong><br>처리 목적 달성 시까지</p>" +
+    "<p><strong>3. 개인정보를 공유받는 자의 개인정보 보유 및 이용 기간</strong><br>개인정보 수집 및 이용 목적 달성 시까지 보관합니다.</p>" +
+    "<p><strong>4. 동의를 거부할 권리 및 동의 거부에 따른 불이익</strong><br>귀하는 위 개인정보의 수집, 이용에 대한 동의를 거부할 수 있으며, 동의를 거부한 경우에는 엠키스코어-WEKA는 귀하에게 그와 관련된 정보나 혜택을 제공하지 않게 됩니다.</p>";
+
+  var CONSENT_TEXT_OPTIONAL =
+    "<strong>전화, E-mail, SMS 수신 동의</strong>" +
+    "<p>엠키스코어-WEKA는 제품 및 서비스, 프로모션 또는 시장조사 등의 유용한 정보를 온라인과 오프라인을 통해 안내 드리고자 합니다. 기프트 제공 또는 기프티콘 발송을 위해 전화 연락 또는 SMS 발송을 드릴 수 있습니다.</p>";
+
   var SURVEY_STEPS = [
     {
       title: "기본 정보",
@@ -76,6 +88,15 @@
           options: ["1~2개월 이내 (긴급도입)", "3개월 이내", "6개월 이내", "1년 이내", "1년 이후", "미정", "계획없음"] },
         { key: "consult", label: "엠키스코어 영업팀의 상담을 받아보시겠어요?", type: "radio", required: true,
           options: ["예", "아니오"] }
+      ]
+    },
+    {
+      title: "개인정보 동의",
+      fields: [
+        { key: "consentRequired", type: "consent", required: true,
+          text: CONSENT_TEXT_REQUIRED, checkboxLabel: "위 개인정보 수집 및 이용에 동의합니다. (필수)" },
+        { key: "consentMarketing", type: "consent", required: false,
+          text: CONSENT_TEXT_OPTIONAL, checkboxLabel: "전화, 이메일, SMS 수신에 동의합니다. (선택)" }
       ]
     }
   ];
@@ -283,6 +304,14 @@
         '<div class="err">최소 하나를 선택해 주세요.</div>' +
       "</div>";
     }
+    if (f.type === "consent") {
+      var isChecked = value === true ? " checked" : "";
+      return '<div class="field consent-field" data-key="' + f.key + '">' +
+        '<div class="consent-box">' + f.text + "</div>" +
+        '<label class="consent-check"><input type="checkbox" data-consent="' + f.key + '"' + isChecked + "><span>" + escapeHtml(f.checkboxLabel) + "</span></label>" +
+        (f.required ? '<div class="err">필수 동의 항목입니다.</div>' : "") +
+      "</div>";
+    }
     return "";
   }
 
@@ -333,6 +362,11 @@
             }
             state.survey[f.key] = cur;
           });
+        });
+      } else if (f.type === "consent") {
+        var consentBox = document.querySelector('input[data-consent="' + f.key + '"]');
+        consentBox.addEventListener("change", function () {
+          state.survey[f.key] = consentBox.checked;
         });
       }
     });
@@ -418,7 +452,9 @@
       interestProducts: s.interestProducts || [],
       adoptionIntent: s.adoptionIntent || "",
       adoptionTimeline: s.adoptionTimeline || "",
-      consult: s.consult || ""
+      consult: s.consult || "",
+      consentRequired: s.consentRequired ? "예" : "아니오",
+      consentMarketing: s.consentMarketing ? "예" : "아니오"
     };
   }
 
